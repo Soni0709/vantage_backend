@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+puts "🚀 Setting up Vantage Backend Login API..."
+
+# Check if we're in the right directory
+unless File.exist?('Gemfile')
+  puts "❌ Please run this script from the vantage_backend directory"
+  exit 1
+end
+
+puts "📦 Installing gems..."
+system('bundle install')
+
+puts "🗄️ Setting up database..."
+system('rails db:drop')
+system('rails db:create')
+system('rails db:migrate')
+system('rails db:seed')
+
+puts "✅ Setup complete!"
+puts ""
+puts "🎯 To test your Login API:"
+puts "1. Start the server: rails server -p 3001"
+puts "2. Test login endpoint:"
+puts ""
+puts "curl -X POST http://localhost:3001/api/v1/auth/login \\"
+puts "  -H \"Content-Type: application/json\" \\"
+puts "  -d '{"
+puts "    \"auth\": {"
+puts "      \"email\": \"test@example.com\","
+puts "      \"password\": \"password123\""
+puts "    }"
+puts "  }'"
+puts ""
+puts "3. Test registration endpoint:"
+puts ""
+puts "curl -X POST http://localhost:3001/api/v1/auth/register \\"
+puts "  -H \"Content-Type: application/json\" \\"
+puts "  -d '{"
+puts "    \"auth\": {"
+puts "      \"email\": \"newuser@example.com\","
+puts "      \"password\": \"password123\","
+puts "      \"first_name\": \"Jane\","
+puts "      \"last_name\": \"Smith\""
+puts "    }"
+puts "  }'"
+puts ""
+puts "🔐 Available test users:"
+puts "- test@example.com / password123"
+puts "- admin@vantage.com / admin123"
