@@ -15,7 +15,7 @@ if Rails.env.development?
     u.email_verified = true
   end
   
-  puts "Test user created: #{user.email} / password123" if user.persisted?
+  puts "Test user: #{user.email} / password123"
   
   # Create an admin user
   admin = User.find_or_create_by(email: 'admin@vantage.com') do |u|
@@ -25,5 +25,90 @@ if Rails.env.development?
     u.email_verified = true
   end
   
-  puts "Admin user created: #{admin.email} / admin123" if admin.persisted?
+  puts "Admin user: #{admin.email} / admin123"
+  
+  # Create sample transactions for test user
+  if user.transactions.empty?
+    puts "Creating sample transactions..."
+    
+    # Income transactions
+    user.transactions.create!([
+      {
+        type: 'income',
+        amount: 5000.00,
+        category: 'Salary',
+        description: 'Monthly salary payment',
+        transaction_date: Date.current,
+        payment_method: 'Bank Transfer'
+      },
+      {
+        type: 'income',
+        amount: 500.00,
+        category: 'Freelance',
+        description: 'Website design project',
+        transaction_date: Date.current - 2.days,
+        payment_method: 'PayPal'
+      },
+      {
+        type: 'income',
+        amount: 150.00,
+        category: 'Investment',
+        description: 'Dividend payment',
+        transaction_date: Date.current - 5.days,
+        payment_method: 'Bank Transfer'
+      }
+    ])
+    
+    # Expense transactions
+    user.transactions.create!([
+      {
+        type: 'expense',
+        amount: 1200.00,
+        category: 'Rent',
+        description: 'Monthly rent payment',
+        transaction_date: Date.current - 1.day,
+        payment_method: 'Bank Transfer'
+      },
+      {
+        type: 'expense',
+        amount: 45.50,
+        category: 'Food',
+        description: 'Grocery shopping at Walmart',
+        transaction_date: Date.current,
+        payment_method: 'Credit Card'
+      },
+      {
+        type: 'expense',
+        amount: 80.00,
+        category: 'Transportation',
+        description: 'Gas and parking',
+        transaction_date: Date.current - 3.days,
+        payment_method: 'Debit Card'
+      },
+      {
+        type: 'expense',
+        amount: 120.00,
+        category: 'Utilities',
+        description: 'Electricity and water bill',
+        transaction_date: Date.current - 7.days,
+        payment_method: 'Auto-pay'
+      },
+      {
+        type: 'expense',
+        amount: 35.00,
+        category: 'Entertainment',
+        description: 'Movie tickets',
+        transaction_date: Date.current - 4.days,
+        payment_method: 'Credit Card'
+      }
+    ])
+    
+    puts "Created #{user.transactions.count} sample transactions"
+    puts "  - Income: #{user.transactions.income.count} transactions"
+    puts "  - Expense: #{user.transactions.expense.count} transactions"
+    puts "  - Total Income: $#{user.transactions.income.sum(:amount)}"
+    puts "  - Total Expense: $#{user.transactions.expense.sum(:amount)}"
+  else
+    puts "Transactions already exist, skipping..."
+  end
 end

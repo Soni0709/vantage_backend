@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   has_secure_password
   
+  #One-to-many relationship with transactions: one user can have many transactions and deleting a user will also delete their transactions.
+  has_many :transactions, dependent: :destroy 
+
   validates :email, presence: true, uniqueness: { case_sensitive: false }
   validates :first_name, :last_name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
