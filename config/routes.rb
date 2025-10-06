@@ -25,6 +25,17 @@ Rails.application.routes.draw do
           get :summary
         end
       end
+      
+      # Recurring Transaction routes
+      resources :recurring_transactions do
+        member do
+          patch :toggle
+        end
+        collection do
+          get :upcoming
+          post :process_due
+        end
+      end
     end
   end
   

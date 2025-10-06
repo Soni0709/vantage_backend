@@ -111,4 +111,70 @@ if Rails.env.development?
   else
     puts "Transactions already exist, skipping..."
   end
+  
+  # Create sample recurring transactions for test user
+  if user.recurring_transactions.empty?
+    puts "Creating sample recurring transactions..."
+    
+    user.recurring_transactions.create!([
+      {
+        type: 'income',
+        amount: 5000.00,
+        category: 'Salary',
+        description: 'Monthly salary',
+        frequency: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        next_occurrence: (Date.current + 1.month).beginning_of_month,
+        is_active: true
+      },
+      {
+        type: 'expense',
+        amount: 1200.00,
+        category: 'Rent',
+        description: 'Monthly rent payment',
+        frequency: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        next_occurrence: (Date.current + 1.month).beginning_of_month,
+        is_active: true
+      },
+      {
+        type: 'expense',
+        amount: 50.00,
+        category: 'Utilities',
+        description: 'Internet subscription',
+        frequency: 'monthly',
+        start_date: Date.current,
+        next_occurrence: Date.current + 1.month,
+        is_active: true
+      },
+      {
+        type: 'expense',
+        amount: 15.00,
+        category: 'Entertainment',
+        description: 'Netflix subscription',
+        frequency: 'monthly',
+        start_date: Date.current - 10.days,
+        next_occurrence: Date.current + 20.days,
+        is_active: true
+      },
+      {
+        type: 'expense',
+        amount: 100.00,
+        category: 'Health',
+        description: 'Gym membership',
+        frequency: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        next_occurrence: (Date.current + 1.month).beginning_of_month,
+        is_active: false
+      }
+    ])
+    
+    puts "Created #{user.recurring_transactions.count} recurring transactions"
+    puts "  - Active: #{user.recurring_transactions.active.count}"
+    puts "  - Inactive: #{user.recurring_transactions.inactive.count}"
+    puts "  - Income: #{user.recurring_transactions.income.count}"
+    puts "  - Expense: #{user.recurring_transactions.expense.count}"
+  else
+    puts "Recurring transactions already exist, skipping..."
+  end
 end
