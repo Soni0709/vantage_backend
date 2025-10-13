@@ -177,4 +177,63 @@ if Rails.env.development?
   else
     puts "Recurring transactions already exist, skipping..."
   end
+  
+  # Create sample budgets for test user
+  if user.budgets.empty?
+    puts "Creating sample budgets..."
+    
+    user.budgets.create!([
+      {
+        category: 'Food',
+        amount: 5000.00,
+        period: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        alert_threshold: 80,
+        alert_enabled: true,
+        is_active: true
+      },
+      {
+        category: 'Transportation',
+        amount: 2000.00,
+        period: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        alert_threshold: 75,
+        alert_enabled: true,
+        is_active: true
+      },
+      {
+        category: 'Entertainment',
+        amount: 1500.00,
+        period: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        alert_threshold: 90,
+        alert_enabled: true,
+        is_active: true
+      },
+      {
+        category: 'Utilities',
+        amount: 3000.00,
+        period: 'monthly',
+        start_date: Date.current.beginning_of_month,
+        alert_threshold: 85,
+        alert_enabled: true,
+        is_active: true
+      },
+      {
+        category: 'Health',
+        amount: 2500.00,
+        period: 'quarterly',
+        start_date: Date.current.beginning_of_quarter,
+        alert_threshold: 80,
+        alert_enabled: true,
+        is_active: true
+      }
+    ])
+    
+    puts "Created #{user.budgets.count} budgets"
+    puts "  - Active: #{user.budgets.active.count}"
+    puts "  - Total budgeted: ₹#{user.budgets.sum(:amount)}"
+  else
+    puts "Budgets already exist, skipping..."
+  end
 end

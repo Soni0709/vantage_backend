@@ -36,6 +36,20 @@ Rails.application.routes.draw do
           post :process_due
         end
       end
+      
+      # Budget routes
+      resources :budgets do
+        collection do
+          get :summary
+          get :alerts
+          post :refresh
+        end
+        
+        member do
+          patch 'alerts/:alert_id/read', to: 'budgets#mark_alert_read'
+          patch 'alerts/:alert_id/acknowledge', to: 'budgets#acknowledge_alert'
+        end
+      end
     end
   end
   
