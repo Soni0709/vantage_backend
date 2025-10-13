@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       put 'auth/profile', to: 'auth#update_profile'
       post 'auth/forgot_password', to: 'auth#forgot_password'
       put 'auth/reset_password', to: 'auth#reset_password'
+      put 'auth/change_password', to: 'auth#change_password'
       
       # Transaction routes
       resources :transactions do

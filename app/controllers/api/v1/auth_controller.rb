@@ -75,21 +75,23 @@ class Api::V1::AuthController < ApplicationController
   end
   
   # POST /api/v1/auth/forgot_password
-  def forgot_password
-    return render_error(['Email is required'], 'Email required') if params[:email].blank?
+ def forgot_password
+  return render_error(['Email is required'], 'Email required') if params[:email].blank?
+  
+  user = User.find_by(email: params[:email].downcase.strip)
+  
+  if user
+    user.generate_reset_password_token!
     
-    user = User.find_by(email: params[:email].downcase.strip)
+    # Send email
+    PasswordResetMailer.reset_password(user).deliver_later
     
-    if user
-      user.generate_reset_password_token!
-      # TODO: Send password reset email
-      # PasswordResetMailer.reset_password(user).deliver_later
-      render_success(nil, 'Password reset instructions sent to your email')
-    else
-      # For security, don't reveal if email exists or not
-      render_success(nil, 'If the email exists, password reset instructions have been sent')
-    end
+    render_success(nil, 'Password reset instructions sent to your email')
+  else
+    render_success(nil, 'If the email exists, password reset instructions have been sent')
   end
+ end
+  
   
   # PUT /api/v1/auth/reset_password
   def reset_password
@@ -115,6 +117,27 @@ class Api::V1::AuthController < ApplicationController
       }
     else
       render_error(user.errors.full_messages, 'Password reset failed')
+    end
+  end
+  
+  # PUT /api/v1/auth/change_password
+  def change_password
+    unless current_user.authenticate(params[:current_password])
+      return render_error(['Current password is incorrect'], 'Invalid password', :unauthorized)
+    end
+    
+    if params[:password].blank?
+      return render_error(['New password cannot be blank'], 'Password required')
+    end
+    
+    if params[:password] != params[:password_confirmation]
+      return render_error(['Passwords do not match'], 'Password mismatch')
+    end
+    
+    if current_user.update(password: params[:password])
+      render_success(nil, 'Password changed successfully')
+    else
+      render_error(current_user.errors.full_messages, 'Password change failed')
     end
   end
   

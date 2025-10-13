@@ -89,6 +89,8 @@ config/puma.rb
 pnpm-lock.yaml
 Gemfile.lock
 
+# Ignore docs folder
+docs/
 
 
 
