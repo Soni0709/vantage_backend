@@ -21,6 +21,8 @@ class Transaction < ApplicationRecord
   scope :this_month, -> { 
     where(transaction_date: Date.current.beginning_of_month..Date.current.end_of_month) 
   }
+  scope :previous_month, -> { where(transaction_date: 1.month.ago.beginning_of_month..1.month.ago.end_of_month) }
+
   
   # Helper methods
   def income?

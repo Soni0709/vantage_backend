@@ -5,11 +5,14 @@ class User < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :recurring_transactions, dependent: :destroy
   has_many :budgets, dependent: :destroy
+  has_many :savings_goals, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }
   validates :first_name, :last_name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 6 }, if: :password_required?
+  validates :savings_goal, presence: true, numericality: { greater_than: 0 }
+
   
   before_save :normalize_email
   

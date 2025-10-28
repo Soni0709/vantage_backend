@@ -15,39 +15,53 @@ class Api::V1::TransactionsController < ApplicationController
   end
   
   # GET /api/v1/transactions/summary
-  def summary
-    transactions = current_user.transactions.this_month
-    
-    total_income = transactions.income.sum(:amount)
-    total_expense = transactions.expense.sum(:amount)
-    
-    # Category breakdown
-    category_summary = transactions.group(:category, :type).sum(:amount)
-    
-    income_by_category = {}
-    expense_by_category = {}
-    
-    category_summary.each do |(category, type), amount|
-      if type == 'income'
-        income_by_category[category] = amount.to_f
-      else
-        expense_by_category[category] = amount.to_f
-      end
+def summary
+  # Current month transactions
+  current_month_transactions = current_user.transactions.this_month
+  
+  total_income = current_month_transactions.income.sum(:amount)
+  total_expense = current_month_transactions.expense.sum(:amount)
+  current_balance = (total_income - total_expense).to_f
+  
+  # Previous month transactions
+  previous_month_transactions = current_user.transactions.previous_month
+  
+  previous_income = previous_month_transactions.income.sum(:amount)
+  previous_expense = previous_month_transactions.expense.sum(:amount)
+  previous_balance = (previous_income - previous_expense).to_f
+  
+  # Category breakdown (current month)
+  category_summary = current_month_transactions.group(:category, :type).sum(:amount)
+  
+  income_by_category = {}
+  expense_by_category = {}
+  
+  category_summary.each do |(category, type), amount|
+    if type == 'income'
+      income_by_category[category] = amount.to_f
+    else
+      expense_by_category[category] = amount.to_f
     end
-    
-    render json: {
-      success: true,
-      message: 'Summary retrieved successfully',
-      data: {
-        total_income: total_income.to_f,
-        total_expense: total_expense.to_f,
-        balance: (total_income - total_expense).to_f,
-        transaction_count: transactions.count,
-        income_by_category: income_by_category,
-        expense_by_category: expense_by_category
+  end
+  
+  render json: {
+    success: true,
+    message: 'Summary retrieved successfully',
+    data: {
+      total_income: total_income.to_f,
+      total_expense: total_expense.to_f,
+      balance: current_balance,
+      transaction_count: current_month_transactions.count,
+      income_by_category: income_by_category,
+      expense_by_category: expense_by_category,
+      previous_month_summary: {
+        total_income: previous_income.to_f,
+        total_expense: previous_expense.to_f,
+        balance: previous_balance
       }
     }
-  end
+  }
+end
   
   # GET /api/v1/transactions/:id
   def show
