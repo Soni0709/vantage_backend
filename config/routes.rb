@@ -51,6 +51,16 @@ Rails.application.routes.draw do
           patch 'alerts/:alert_id/acknowledge', to: 'budgets#acknowledge_alert'
         end
       end
+      
+      # Savings Goals routes
+      resources :savings_goals do
+        collection do
+          get :summary
+        end
+        member do
+          patch :add_amount
+        end
+      end
     end
   end
   
