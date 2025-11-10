@@ -5,6 +5,9 @@ class Api::V1::TransactionsController < ApplicationController
   def index
     @transactions = current_user.transactions.recent
     
+    # Apply filters from query parameters
+    @transactions = apply_filters(@transactions)
+    
     render json: {
       success: true,
       message: 'Transactions retrieved successfully',
@@ -148,5 +151,87 @@ end
       created_at: transaction.created_at,
       updated_at: transaction.updated_at
     }
+  end
+  
+  # Apply filters from query parameters
+  def apply_filters(transactions)
+    begin
+      # Filter by type (income/expense)
+      if params[:type].present?
+        transactions = transactions.where(type: params[:type])
+        Rails.logger.info "✅ Applied type filter: #{params[:type]}"
+      end
+      
+      # Filter by category
+      if params[:category].present?
+        transactions = transactions.where(category: params[:category])
+        Rails.logger.info "✅ Applied category filter: #{params[:category]}"
+      end
+      
+      # Filter by start date
+      if params[:start_date].present?
+        begin
+          start_date = Date.strptime(params[:start_date], '%Y-%m-%d')
+          transactions = transactions.where('transaction_date >= ?', start_date.beginning_of_day)
+          Rails.logger.info "✅ Applied start_date filter: #{params[:start_date]}"
+        rescue => e
+          Rails.logger.warn "⚠️ Invalid start_date format: #{params[:start_date]} - #{e.message}"
+        end
+      end
+      
+      # Filter by end date
+      if params[:end_date].present?
+        begin
+          end_date = Date.strptime(params[:end_date], '%Y-%m-%d')
+          transactions = transactions.where('transaction_date <= ?', end_date.end_of_day)
+          Rails.logger.info "✅ Applied end_date filter: #{params[:end_date]}"
+        rescue => e
+          Rails.logger.warn "⚠️ Invalid end_date format: #{params[:end_date]} - #{e.message}"
+        end
+      end
+      
+      # Filter by minimum amount
+      if params[:min_amount].present?
+        min_amount = params[:min_amount].to_f
+        transactions = transactions.where('amount >= ?', min_amount)
+        Rails.logger.info "✅ Applied min_amount filter: #{min_amount}"
+      end
+      
+      # Filter by maximum amount
+      if params[:max_amount].present?
+        max_amount = params[:max_amount].to_f
+        transactions = transactions.where('amount <= ?', max_amount)
+        Rails.logger.info "✅ Applied max_amount filter: #{max_amount}"
+      end
+      
+      # Filter by search (description, category)
+      if params[:search].present?
+        search_term = "%#{params[:search]}%"
+        # Use ILIKE for PostgreSQL, LIKE for others
+        if ActiveRecord::Base.connection.adapter_name.downcase.include?('postgres')
+          transactions = transactions.where(
+            'description ILIKE ? OR category ILIKE ?',
+            search_term,
+            search_term
+          )
+        else
+          transactions = transactions.where(
+            'description LIKE ? OR category LIKE ?',
+            search_term,
+            search_term
+          )
+        end
+        Rails.logger.info "✅ Applied search filter: #{params[:search]}"
+      end
+      
+      Rails.logger.info "📊 Total transactions after filters: #{transactions.count}"
+      
+      transactions
+    rescue => e
+      Rails.logger.error "❌ Error applying filters: #{e.class} - #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      # Return unfiltered transactions on error
+      current_user.transactions.recent
+    end
   end
 end
