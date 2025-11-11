@@ -11,8 +11,6 @@ class User < ApplicationRecord
   validates :first_name, :last_name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 6 }, if: :password_required?
-  validates :savings_goal, presence: true, numericality: { greater_than: 0 }
-
   
   before_save :normalize_email
   
