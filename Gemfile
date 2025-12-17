@@ -47,4 +47,7 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+  
+  # Detect N+1 queries and unused eager loading
+  gem "bullet"
 end
