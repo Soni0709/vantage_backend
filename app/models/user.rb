@@ -12,6 +12,7 @@ class User < ApplicationRecord
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 6 }, if: :password_required?
   
+  #callbacks
   before_save :normalize_email
   
   scope :verified, -> { where(email_verified: true) }

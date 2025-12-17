@@ -147,6 +147,8 @@ class Api::V1::AuthController < ApplicationController
     params.require(:auth).permit(:email, :password)
   end
   
+  # require: key must exist
+  # permit: only allow listed attributes
   def register_params
     params.require(:auth).permit(:email, :password, :first_name, :last_name)
   end

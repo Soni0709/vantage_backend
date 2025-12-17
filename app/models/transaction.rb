@@ -17,6 +17,8 @@ class Transaction < ApplicationRecord
   scope :by_date_range, ->(start_date, end_date) { 
     where(transaction_date: start_date..end_date) 
   }
+
+  #query shortcuts as methods
   scope :by_category, ->(category) { where(category: category) }
   scope :this_month, -> { 
     where(transaction_date: Date.current.beginning_of_month..Date.current.end_of_month) 
